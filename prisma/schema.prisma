@@ -17,5 +17,21 @@ model Contact {
   number String
   createdAt DateTime @default(now())
 
+  contactOwnerId String
+  contactOwner User @relation(fields: [contactOwnerId], references: [id])
+
   @@map("contacts")
+}
+
+model User {
+  id String @id
+  name String
+  email String @unique
+  password String
+  number String @unique
+  createdAt DateTime @default(now())
+
+  contacts Contact[]
+
+  @@map("users")
 }
