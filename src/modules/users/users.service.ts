@@ -34,7 +34,7 @@ export class UsersService {
       throw new UnauthorizedException('You don\'t have permission to access this')
     }
 
-    const foundUser = await this.prisma.user.findFirst({ where: { id } })
+    const foundUser = await this.prisma.user.findFirst({ where: { id }, include: { contacts: true } })
 
     if(!foundUser) {
       throw new NotFoundException('User not found')
