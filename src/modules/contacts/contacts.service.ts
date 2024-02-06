@@ -18,8 +18,8 @@ export class ContactsService {
     return newContact
   }
 
-  findAll() {
-    return `This action returns all contacts`;
+  async findAll(req: any) {
+    return await this.prisma.contact.findMany({ where: { contactOwnerId: req.user.id } })
   }
 
   findOne(id: number) {
