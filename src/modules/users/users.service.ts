@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, Post } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, Post, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/database/prisma.service';
@@ -11,7 +11,7 @@ export class UsersService {
   
   @Post()
   async create(createUserDto: CreateUserDto) {
-    const findByEmail = await this.prisma.user.findFirst({ where: { email: createUserDto.email } })
+    const findByEmail = await this.findByEmail(createUserDto.email)
     const findByNumber = await this.prisma.user.findFirst({ where: { number: createUserDto.number } })
     
     if(findByEmail || findByNumber) {
@@ -25,11 +25,15 @@ export class UsersService {
     return plainToInstance(User, createdUser)
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  // findAll() {
+  //   return `This action returns all users`;
+  // }
 
-  async findOne(id: string) {
+  async findOne(id: string, req: any) {
+    if(req.user.id !== id) {
+      throw new UnauthorizedException('You don\'t have permission to access this')
+    }
+
     const foundUser = await this.prisma.user.findFirst({ where: { id } })
 
     if(!foundUser) {
@@ -39,12 +43,38 @@ export class UsersService {
     return plainToInstance(User, foundUser)
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async findByEmail(email: string) {
+    const foundUser = await this.prisma.user.findFirst({ where: { email } })
+    return foundUser
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto, req: any) {
+    if(req.user.id !== id) {
+      throw new UnauthorizedException('You don\'t have permission to access this')
+    }
+
+    const findByEmail = await this.findByEmail(updateUserDto.email)
+    const findByNumber = await this.prisma.user.findFirst({ where: { number: updateUserDto.number } })
+
+    if(findByEmail || findByNumber) {
+      throw new UnauthorizedException('User with this e-mail or number already exists')
+    }
+
+    const foundUser = await this.prisma.user.findFirst({ where: { id } })
+
+    if(!foundUser) {
+      throw new NotFoundException('User not found')
+    }
+
     const updatedUser = await this.prisma.user.update({ where: { id }, data: { ...updateUserDto } })
     return plainToInstance(User, updatedUser)
   }
 
-  async remove(id: string) {
+  async remove(id: string, req: any) {
+    if(req.user.id !== id) {
+      throw new UnauthorizedException('You don\'t have permission to access this')
+    }
+
     await this.prisma.user.delete({ where: { id } })
   }
 }
