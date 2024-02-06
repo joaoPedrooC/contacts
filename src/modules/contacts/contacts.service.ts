@@ -22,8 +22,13 @@ export class ContactsService {
     return await this.prisma.contact.findMany({ where: { contactOwnerId: req.user.id } })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contact`;
+  async findOne(id: string) {
+    const contact = await this.prisma.contact.findUnique({ where: { id } })
+    if(!contact) {
+      throw new NotFoundException('Contact not found')
+    }
+
+    return contact;
   }
 
   async update(id: string, updateContactDto: UpdateContactDto, req: any) {

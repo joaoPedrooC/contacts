@@ -23,7 +23,7 @@ export class ContactsController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
-    return this.contactsService.findOne(+id);
+    return this.contactsService.findOne(id);
   }
   
   @Patch(':id')
