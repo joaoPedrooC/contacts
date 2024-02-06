@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { PrismaService } from 'src/database/prisma.service';
@@ -11,7 +11,7 @@ export class ContactsService {
   async create(createContactDto: CreateContactDto, req: any) {
     const contact = new Contact()
     Object.assign(contact, { ...createContactDto } )
-    
+
     contact.contactOwnerId = req.user.id
     const newContact = await this.prisma.contact.create({ data: { ...contact } })
 
@@ -30,7 +30,13 @@ export class ContactsService {
     return `This action updates a #${id} contact`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} contact`;
+  async remove(id: string, req: any) {
+    const contact = await this.prisma.contact.findUnique({ where: { id } })
+    
+    if(contact.contactOwnerId !== req.user.id) {
+      throw new UnauthorizedException('You don\'t have permission to access this')
+    }
+
+    await this.prisma.contact.delete({ where: { id } })
   }
 }

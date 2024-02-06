@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, HttpCode } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -32,9 +32,10 @@ export class ContactsController {
     return this.contactsService.update(+id, updateContactDto);
   }
   
+  @HttpCode(204)
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.contactsService.remove(+id);
+  remove(@Param('id') id: string, @Request() req: any) {
+    return this.contactsService.remove(id, req);
   }
 }
