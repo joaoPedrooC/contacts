@@ -28,8 +28,8 @@ export class ContactsController {
   
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactsService.update(+id, updateContactDto);
+  update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto, @Request() req: any) {
+    return this.contactsService.update(id, updateContactDto, req);
   }
   
   @HttpCode(204)
