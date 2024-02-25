@@ -18,7 +18,7 @@ model Contact {
   createdAt DateTime @default(now())
 
   contactOwnerId String
-  contactOwner User @relation(fields: [contactOwnerId], references: [id])
+  contactOwner User @relation(fields: [contactOwnerId], references: [id], onDelete: Cascade)
 
   @@map("contacts")
 }
