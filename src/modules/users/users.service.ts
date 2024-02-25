@@ -53,10 +53,12 @@ export class UsersService {
       throw new UnauthorizedException('You don\'t have permission to access this')
     }
 
+    console.log(updateUserDto);
+    
     const findByEmail = await this.findByEmail(updateUserDto.email)
     const findByNumber = await this.prisma.user.findFirst({ where: { number: updateUserDto.number } })
 
-    if(findByEmail || findByNumber) {
+    if((findByEmail && updateUserDto.email) || (findByNumber && updateUserDto.number)) {
       throw new UnauthorizedException('User with this e-mail or number already exists')
     }
 
@@ -71,10 +73,10 @@ export class UsersService {
   }
 
   async remove(id: string, req: any) {
-    if(req.user.id !== id) {
+    if(id !== req.user.id) {
       throw new UnauthorizedException('You don\'t have permission to access this')
     }
 
-    await this.prisma.user.delete({ where: { id } })
+    return await this.prisma.user.delete({ where: { id } })
   }
 }
