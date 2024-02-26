@@ -73,6 +73,12 @@ export class UsersService {
   }
 
   async remove(id: string, req: any) {
+    const foundUser = await this.prisma.user.findUnique({ where: { id } })
+
+    if(!foundUser) {
+      throw new NotFoundException('User not found')
+    }
+
     if(id !== req.user.id) {
       throw new UnauthorizedException('You don\'t have permission to access this')
     }
