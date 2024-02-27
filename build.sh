@@ -5,4 +5,4 @@ set -o errexit
 
 npm install
 npm run build
-npx prisma migrate dev
+npx prisma migrate deploy
